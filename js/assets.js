@@ -68,8 +68,8 @@ const ASSETS = {
             TYPE: 'racer',
             NAME: 'Racer',
             DESCRIPTION: 'Быстрая и может получать случайное ускорение',
-            BASE_SPEED: 55,
-            SPEED_VARIATION: 10,
+            BASE_SPEED: 5.5,
+            SPEED_VARIATION: 1,
             BOOST_PROBABILITY: 0.2,
             BOOST_MULTIPLIER: 1.3,
             COLOR: '#ff0000'
@@ -78,8 +78,8 @@ const ASSETS = {
             TYPE: 'explorer',
             NAME: 'Explorer',
             DESCRIPTION: 'Исследует лабиринт и может найти короткие пути',
-            BASE_SPEED: 45,
-            SPEED_VARIATION: 5,
+            BASE_SPEED: 4.5,
+            SPEED_VARIATION: 0.5,
             EXPLORATION_RATE: 0.65,
             COLOR: '#0000ff'
         },
@@ -87,8 +87,8 @@ const ASSETS = {
             TYPE: 'snake',
             NAME: 'Snake',
             DESCRIPTION: 'Передвигается зигзагом и быстрее выходит из тупиков',
-            BASE_SPEED: 50,
-            SPEED_VARIATION: 7,
+            BASE_SPEED: 5.0,
+            SPEED_VARIATION: 0.7,
             ZIGZAG_PROBABILITY: 0.7,
             COLOR: '#00ff00'
         },
@@ -96,8 +96,8 @@ const ASSETS = {
             TYPE: 'stubborn',
             NAME: 'Stubborn',
             DESCRIPTION: 'Упрямо движется в выбранном направлении',
-            BASE_SPEED: 52,
-            SPEED_VARIATION: 8,
+            BASE_SPEED: 5.2,
+            SPEED_VARIATION: 0.8,
             FORWARD_PROBABILITY: 0.85,
             COLOR: '#800080'
         },
@@ -105,8 +105,8 @@ const ASSETS = {
             TYPE: 'deadender',
             NAME: 'Deadender',
             DESCRIPTION: 'Любит заходить в тупики и неожиданно менять направление',
-            BASE_SPEED: 48,
-            SPEED_VARIATION: 12,
+            BASE_SPEED: 4.8,
+            SPEED_VARIATION: 1.2,
             RANDOM_TURN_PROBABILITY: 0.6,
             COLOR: '#ffff00'
         }
@@ -123,7 +123,7 @@ const ASSETS = {
         DEFAULT_BET: 10,
         WINNING_MULTIPLIER: 2.5,
         SECOND_PLACE_MULTIPLIER: 1.2,
-        RACE_DURATION_MS: 30000,  // Максимальная длительность гонки
+        RACE_DURATION_MS: 60000,  // Максимальная длительность гонки (увеличиваем до 60 секунд)
         SNAIL_COUNT: 5,           // Количество улиток в гонке
         DIFFICULTY: 'medium'      // Сложность по умолчанию
     },

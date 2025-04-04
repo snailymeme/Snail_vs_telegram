@@ -130,12 +130,15 @@ footer {
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
 }
 
 .snail-option img {
     width: 60px;
     height: 60px;
     object-fit: contain;
+    border-radius: 50%;
+    transition: transform 0.2s;
 }
 
 .snail-option span {
@@ -328,14 +331,26 @@ footer {
 /* Стили улиток в лабиринте */
 .snail {
     position: absolute;
-    transition: transform 0.3s ease;
+    z-index: 10;
+    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+    will-change: transform, left, top;
+    transition: left 0.3s linear, top 0.3s linear, transform 0.2s ease;
 }
 
-.snail-racer { border: 2px solid rgba(255, 0, 0, 0.5); }
-.snail-explorer { border: 2px solid rgba(0, 0, 255, 0.5); }
-.snail-snake { border: 2px solid rgba(0, 128, 0, 0.5); }
-.snail-stubborn { border: 2px solid rgba(128, 0, 128, 0.5); }
-.snail-deadender { border: 2px solid rgba(255, 255, 0, 0.5); }
+.snail img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Убираем цветные рамки вокруг улиток */
+.snail-racer { background-color: rgba(255, 0, 0, 0.1); }
+.snail-explorer { background-color: rgba(0, 0, 255, 0.1); }
+.snail-snake { background-color: rgba(0, 128, 0, 0.1); }
+.snail-stubborn { background-color: rgba(128, 0, 128, 0.1); }
+.snail-deadender { background-color: rgba(255, 255, 0, 0.1); }
 
 /* Стили для ячеек лабиринта */
 .cell {

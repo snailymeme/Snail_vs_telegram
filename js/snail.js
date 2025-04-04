@@ -49,7 +49,7 @@ class Snail {
      */
     initTypeSpecificParameters() {
         // Базовые параметры для всех типов
-        this.wrongPathProbability = 0.3;
+        this.wrongPathProbability = 0.7; // Увеличиваем шанс пойти по неправильному пути
         this.disoriented = false;
         this.disorientedTime = 0;
         this.stuck = false;
@@ -61,27 +61,27 @@ class Snail {
             case 'racer':
                 this.boostProbability = ASSETS.SNAIL_TYPES.RACER.BOOST_PROBABILITY || 0.2;
                 this.boostMultiplier = ASSETS.SNAIL_TYPES.RACER.BOOST_MULTIPLIER || 1.3;
-                this.wrongPathProbability = 0.2; // Меньше шансов сбиться с пути
+                this.wrongPathProbability = 0.5; // Даже быстрая улитка будет ошибаться
                 break;
                 
             case 'explorer':
-                this.explorationRate = ASSETS.SNAIL_TYPES.EXPLORER.EXPLORATION_RATE || 0.65;
-                this.wrongPathProbability = 0.4; // Больше исследует
+                this.explorationRate = ASSETS.SNAIL_TYPES.EXPLORER.EXPLORATION_RATE || 0.85; // Больше исследует
+                this.wrongPathProbability = 0.75; // Сильнее исследует окружение
                 break;
                 
             case 'snake':
-                this.zigzagProbability = ASSETS.SNAIL_TYPES.SNAKE.ZIGZAG_PROBABILITY || 0.7;
+                this.zigzagProbability = ASSETS.SNAIL_TYPES.SNAKE.ZIGZAG_PROBABILITY || 0.9; // Больше зигзагов
                 this.escapeDeadEndSpeed = 1.3; // Быстрее выходит из тупиков
                 break;
                 
             case 'stubborn':
-                this.forwardProbability = ASSETS.SNAIL_TYPES.STUBBORN.FORWARD_PROBABILITY || 0.85;
+                this.forwardProbability = ASSETS.SNAIL_TYPES.STUBBORN.FORWARD_PROBABILITY || 0.9; // Ещё упрямее
                 this.accelerationBoost = 1.1; // Небольшое ускорение при движении вперед
                 break;
                 
             case 'deadender':
-                this.randomTurnProbability = ASSETS.SNAIL_TYPES.DEADENDER.RANDOM_TURN_PROBABILITY || 0.6;
-                this.pauseInDeadEndTime = 1000; // Время размышления в тупике (мс)
+                this.randomTurnProbability = ASSETS.SNAIL_TYPES.DEADENDER.RANDOM_TURN_PROBABILITY || 0.8; // Больше случайных поворотов
+                this.pauseInDeadEndTime = 1500; // Дольше думает в тупике (мс)
                 break;
         }
     }
@@ -103,12 +103,21 @@ class Snail {
         this.element.style.width = `${elementSize}px`;
         this.element.style.height = `${elementSize}px`;
         
+        // Добавляем плавное перемещение и стили для улучшения внешнего вида
+        this.element.style.transition = 'left 0.3s linear, top 0.3s linear, transform 0.2s ease';
+        this.element.style.position = 'absolute';
+        this.element.style.borderRadius = '50%';
+        this.element.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))';
+        this.element.style.willChange = 'transform, left, top';
+        
         // Создаем изображение улитки
         const snailImage = document.createElement('img');
         snailImage.src = ASSETS.IMAGES.SNAILS[this.type.toUpperCase()];
         snailImage.alt = this.name;
         snailImage.style.width = '100%';
         snailImage.style.height = '100%';
+        snailImage.style.borderRadius = '50%'; // Скругляем изображение
+        snailImage.style.pointerEvents = 'none'; // Отключаем события мыши на изображении
         
         // Добавляем изображение в элемент
         this.element.appendChild(snailImage);
@@ -132,19 +141,52 @@ class Snail {
         // Центрирование улитки в ячейке
         const offset = (this.cellSize - parseFloat(this.element.style.width)) / 2;
         
+        // Применяем позицию через трансформацию для большей плавности
         this.element.style.left = `${x + offset}px`;
         this.element.style.top = `${y + offset}px`;
         
-        // Обновляем поворот в зависимости от направления
+        // Обновляем поворот и отражение в зависимости от направления
         let rotation = 0;
+        let scaleX = 1; // По умолчанию без отражения
+        let scaleY = 1; // По умолчанию без отражения по вертикали
+        
         switch (this.currentDirection) {
-            case 'up': rotation = -90; break;
-            case 'right': rotation = 0; break;
-            case 'down': rotation = 90; break;
-            case 'left': rotation = 180; break;
+            case 'up': 
+                rotation = -90; 
+                break;
+            case 'right': 
+                rotation = 0; 
+                scaleX = 1; // Нормальное отображение
+                break;
+            case 'down': 
+                rotation = 90; 
+                break;
+            case 'left': 
+                rotation = 0; // Не поворачиваем
+                scaleX = -1; // Отражаем по горизонтали
+                break;
         }
         
-        this.element.style.transform = `rotate(${rotation}deg)`;
+        // Получаем потомка-изображение
+        const snailImage = this.element.querySelector('img');
+        if (snailImage) {
+            // Для более естественного вида улитки, сначала сбрасываем все трансформации
+            snailImage.style.transform = '';
+            
+            // Меняем положение изображения внутри контейнера для более плавного эффекта
+            if (this.currentDirection === 'left') {
+                // При движении влево отражаем только изображение
+                snailImage.style.transform = 'scaleX(-1)';
+                // К самому контейнеру применяем только поворот
+                this.element.style.transform = `rotate(${rotation}deg)`;
+            } else {
+                // Для остальных направлений применяем трансформацию к контейнеру
+                this.element.style.transform = `rotate(${rotation}deg)`;
+            }
+        } else {
+            // Запасной вариант, если img не найден (старый метод)
+            this.element.style.transform = `rotate(${rotation}deg) scaleX(${scaleX})`;
+        }
     }
     
     /**
@@ -184,6 +226,12 @@ class Snail {
      * Базовый алгоритм генерации пути (к финишу)
      */
     generateBasePath() {
+        // С большой вероятностью генерируем случайный путь вместо поиска оптимального
+        if (Math.random() < this.wrongPathProbability) {
+            this.generateRandomPath(8); // Увеличиваем длину случайного пути
+            return;
+        }
+        
         // Пытаемся найти путь к финишу
         const path = this.maze.findPath(
             this.row, 
@@ -192,14 +240,39 @@ class Snail {
             this.maze.finish.col
         );
         
-        // Если путь найден, используем его
+        // Если путь найден, модифицируем его для неоптимальности
         if (path && path.length > 0) {
-            this.path = path;
+            // Добавляем случайные отклонения в путь
+            const modifiedPath = [path[0]];
+            
+            for (let i = 1; i < path.length - 1; i++) {
+                // С определенной вероятностью добавляем случайное отклонение
+                if (Math.random() < 0.4) {
+                    const neighbors = this.getValidNeighbors(path[i].row, path[i].col);
+                    if (neighbors.length > 0) {
+                        // Добавляем случайных соседей для создания петель
+                        const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                        modifiedPath.push(randomNeighbor);
+                        // Иногда добавляем больше отклонений для создания петли
+                        if (Math.random() < 0.3) {
+                            const moreNeighbors = this.getValidNeighbors(randomNeighbor.row, randomNeighbor.col);
+                            if (moreNeighbors.length > 0) {
+                                modifiedPath.push(moreNeighbors[Math.floor(Math.random() * moreNeighbors.length)]);
+                            }
+                        }
+                    }
+                }
+                
+                modifiedPath.push(path[i]);
+            }
+            
+            modifiedPath.push(path[path.length - 1]);
+            this.path = modifiedPath;
             return;
         }
         
         // Если путь не найден, используем случайные шаги
-        this.generateRandomPath(3);
+        this.generateRandomPath(8);
     }
     
     /**
@@ -221,8 +294,24 @@ class Snail {
             currentRow = randomNeighbor.row;
             currentCol = randomNeighbor.col;
             
-            // Если достигли финиша, останавливаемся
+            // С небольшой вероятностью добавляем больше случайных шагов для создания петель
+            if (Math.random() < 0.3 && i < steps - 2) {
+                const moreNeighbors = this.getValidNeighbors(currentRow, currentCol);
+                if (moreNeighbors.length > 0) {
+                    const extraNeighbor = moreNeighbors[Math.floor(Math.random() * moreNeighbors.length)];
+                    path.push(extraNeighbor);
+                    currentRow = extraNeighbor.row;
+                    currentCol = extraNeighbor.col;
+                    i++; // Увеличиваем счетчик, так как добавили еще один шаг
+                }
+            }
+            
+            // Если достигли финиша, с большой вероятностью продолжаем случайное движение
             if (currentRow === this.maze.finish.row && currentCol === this.maze.finish.col) {
+                if (Math.random() < 0.8 && i < steps - 2) {
+                    // Продолжаем случайное движение, не останавливаясь на финише
+                    continue;
+                }
                 break;
             }
         }
@@ -263,7 +352,12 @@ class Snail {
             this.activateTurboBoost();
         }
         
-        this.generateBasePath();
+        // Даже быстрая улитка должна иногда отклоняться от пути
+        if (Math.random() < 0.6) {
+            this.generateRandomPath(6);
+        } else {
+            this.generateBasePath();
+        }
     }
     
     /**
@@ -272,7 +366,26 @@ class Snail {
     generateExplorerPath() {
         // Explorer с определенной вероятностью исследует лабиринт
         if (Math.random() < this.explorationRate) {
-            this.generateRandomPath(5);
+            // Исследователь любит посещать разные части лабиринта
+            const randomRow = Math.floor(Math.random() * this.maze.rows);
+            const randomCol = Math.floor(Math.random() * this.maze.cols);
+            
+            // Пытаемся найти случайную доступную ячейку для исследования
+            if (this.maze.isWalkable(randomRow, randomCol)) {
+                const randomPath = this.maze.findPath(
+                    this.row,
+                    this.col,
+                    randomRow,
+                    randomCol
+                );
+                
+                if (randomPath && randomPath.length > 0) {
+                    this.path = randomPath;
+                    return;
+                }
+            }
+            
+            this.generateRandomPath(10);
         } else {
             this.generateBasePath();
         }
@@ -292,16 +405,28 @@ class Snail {
             );
             
             if (basePath && basePath.length > 2) {
-                // Модифицируем путь для создания зигзагов
+                // Сильно модифицируем путь для создания зигзагов
                 const zigzagPath = [basePath[0]];
                 
                 for (let i = 1; i < basePath.length - 1; i++) {
+                    // Для каждой точки пути добавляем зигзаги
                     const neighbors = this.getValidNeighbors(basePath[i].row, basePath[i].col);
                     
-                    // Добавляем случайного соседа, если возможно
-                    if (neighbors.length > 1 && Math.random() < 0.5) {
-                        const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
-                        zigzagPath.push(randomNeighbor);
+                    // Добавляем больше случайных соседей для создания зигзагов
+                    if (neighbors.length > 1) {
+                        // Добавляем до 3 случайных соседей
+                        for (let j = 0; j < Math.min(3, neighbors.length); j++) {
+                            if (Math.random() < 0.7) {
+                                const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                                zigzagPath.push(randomNeighbor);
+                                
+                                // Можем добавить еще больше зигзагов
+                                const subNeighbors = this.getValidNeighbors(randomNeighbor.row, randomNeighbor.col);
+                                if (subNeighbors.length > 0 && Math.random() < 0.4) {
+                                    zigzagPath.push(subNeighbors[Math.floor(Math.random() * subNeighbors.length)]);
+                                }
+                            }
+                        }
                     }
                     
                     zigzagPath.push(basePath[i]);
@@ -313,8 +438,8 @@ class Snail {
             }
         }
         
-        // Если не удалось создать зигзаг, используем базовый путь
-        this.generateBasePath();
+        // Если не удалось создать зигзаг, используем случайный путь
+        this.generateRandomPath(10);
     }
     
     /**
@@ -335,12 +460,32 @@ class Snail {
             if (forwardNeighbors.length > 0) {
                 const path = [{ row: this.row, col: this.col }, forwardNeighbors[0]];
                 
-                // Проверяем, не тупик ли это
-                const nextNeighbors = this.getValidNeighbors(forwardNeighbors[0].row, forwardNeighbors[0].col);
-                if (nextNeighbors.length > 1) {
-                    this.path = path;
-                    return;
+                // Продолжаем движение в том же направлении, даже если это неоптимально
+                let currentCell = forwardNeighbors[0];
+                for (let i = 0; i < 8; i++) {
+                    const nextNeighbors = this.getValidNeighbors(currentCell.row, currentCell.col);
+                    const sameDirectionNeighbors = nextNeighbors.filter(
+                        n => this.getDirection(currentCell, n) === lastDirection
+                    );
+                    
+                    if (sameDirectionNeighbors.length > 0) {
+                        const nextCell = sameDirectionNeighbors[0];
+                        path.push(nextCell);
+                        currentCell = nextCell;
+                    } else {
+                        // Если не можем идти в том же направлении, выбираем случайное
+                        if (nextNeighbors.length > 0) {
+                            const randomNeighbor = nextNeighbors[Math.floor(Math.random() * nextNeighbors.length)];
+                            path.push(randomNeighbor);
+                            currentCell = randomNeighbor;
+                        } else {
+                            break;
+                        }
+                    }
                 }
+                
+                this.path = path;
+                return;
             }
         }
         
@@ -354,30 +499,46 @@ class Snail {
     generateDeadenderPath() {
         // Deadender любит заходить в тупики
         if (Math.random() < this.randomTurnProbability) {
-            // Ищем ближайший тупик
-            const neighbors = this.getValidNeighbors(this.row, this.col);
+            // Ищем ближайший тупик или просто делаем случайные повороты
+            const path = [{ row: this.row, col: this.col }];
+            let currentCell = { row: this.row, col: this.col };
             
-            // Сначала проверяем, есть ли соседи, которые ведут в тупик
-            for (const neighbor of neighbors) {
-                const nextNeighbors = this.getValidNeighbors(neighbor.row, neighbor.col);
-                // Если у соседа только один выход (назад к нам), это тупик
-                if (nextNeighbors.length === 1) {
-                    this.path = [{ row: this.row, col: this.col }, neighbor];
+            for (let i = 0; i < 8; i++) {
+                const neighbors = this.getValidNeighbors(currentCell.row, currentCell.col);
+                
+                if (neighbors.length === 0) break;
+                
+                // С большой вероятностью выбираем соседа, ведущего в тупик
+                const deadEndNeighbors = neighbors.filter(n => {
+                    const nextNeighbors = this.getValidNeighbors(n.row, n.col);
+                    return nextNeighbors.length <= 1; // Тупик или почти тупик
+                });
+                
+                if (deadEndNeighbors.length > 0 && Math.random() < 0.8) {
+                    const deadEndNeighbor = deadEndNeighbors[Math.floor(Math.random() * deadEndNeighbors.length)];
+                    path.push(deadEndNeighbor);
+                    currentCell = deadEndNeighbor;
                     
-                    // С небольшой вероятностью застреваем в тупике
-                    if (Math.random() < 0.3) {
+                    // С высокой вероятностью застреваем в тупике
+                    if (Math.random() < 0.7) {
                         this.stuck = true;
                         setTimeout(() => {
                             this.stuck = false;
                         }, this.pauseInDeadEndTime);
                     }
-                    
-                    return;
+                } else {
+                    // Иначе выбираем случайного соседа
+                    const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    path.push(randomNeighbor);
+                    currentCell = randomNeighbor;
                 }
             }
+            
+            this.path = path;
+            return;
         }
         
-        // Если не нашли тупик или не выбрали его, используем базовый путь
+        // Если не выбрали искать тупик, используем базовый путь
         this.generateBasePath();
     }
     
@@ -523,27 +684,19 @@ class Snail {
         this.row = nextPoint.row;
         this.col = nextPoint.col;
         
-        // Обновляем визуальное представление
+        // Обновляем визуальное представление с плавной анимацией
         this.updateElementPosition();
         
         // Увеличиваем индекс пути
         this.currentPathIndex++;
         
         // Проверяем, достигли ли финиша
-        this.checkFinish();
-        
-        // Проверяем специальные ячейки
-        this.checkSpecialCells();
-    }
-    
-    /**
-     * Проверка, достиг ли улитка финиша
-     */
-    checkFinish() {
-        if (this.row === this.maze.finish.row && this.col === this.maze.finish.col) {
-            // Улитка достигла финиша, сообщаем об этом
-            const event = new CustomEvent('snailFinished', { detail: this });
-            document.dispatchEvent(event);
+        if (this.row === this.maze.finish.row && this.col === this.maze.finish.col && !this.hasFinished) {
+            // Создаем событие финиша
+            const finishEvent = new CustomEvent('snailFinished', {
+                detail: { snail: this, type: this.type }
+            });
+            document.dispatchEvent(finishEvent);
         }
     }
     

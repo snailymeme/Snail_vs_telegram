@@ -392,17 +392,33 @@ class Game {
      * Игровой цикл
      */
     gameLoop(timestamp) {
-        // Вычисляем время с прошлого кадра
+        // Вычисляем время, прошедшее с последнего кадра
         if (!this.lastTimestamp) {
             this.lastTimestamp = timestamp;
         }
         const deltaTime = timestamp - this.lastTimestamp;
         this.lastTimestamp = timestamp;
         
-        // Обновляем состояние игры
-        this.update(deltaTime);
+        // Обновляем состояние игры, если она активна
+        if (this.isRaceActive) {
+            // Обновляем состояние улиток
+            if (this.snailManager) {
+                this.snailManager.update(deltaTime);
+            }
+            
+            // Проверяем время гонки
+            if (this.raceStartTime > 0) {
+                const elapsed = Date.now() - this.raceStartTime;
+                if (elapsed >= ASSETS.GAME.RACE_DURATION_MS) {
+                    this.endRace();
+                }
+            }
+            
+            // Обновляем статус гонки
+            this.updateRaceStatus();
+        }
         
-        // Регистрируем следующий кадр
+        // Запрашиваем следующий кадр
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
     
@@ -422,5 +438,12 @@ class Game {
             const raceSeconds = (raceTime / 1000).toFixed(1);
             this.raceStatusDisplay.textContent = `Race time: ${raceSeconds}s`;
         }
+    }
+    
+    /**
+     * Обновление статуса гонки
+     */
+    updateRaceStatus() {
+        // Реализация обновления статуса гонки
     }
 } 
