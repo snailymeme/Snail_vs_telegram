@@ -1,0 +1,191 @@
+# Project: Snail to Riches - Development Plan
+
+**Format:** Telegram Web App (HTML5 Game)
+**Core Goal:** Develop a game where users bet on autonomously racing snails within a maze, integrated with a Solana wallet for bets and winnings. The game runs inside the Telegram application via its Web App platform.
+
+---
+
+## 🎯 1. Overall Description and Goals
+
+Develop an HTML5 game presented as a **Telegram Web App**. The player places a bet (using Solana tokens) on one of several snails, each with unique behavioral patterns. The snails navigate a maze **autonomously** (no user control during the race). If the player's chosen snail wins, they receive a payout (x2 of the bet in the MVP). The primary user interface language will be **English**.
+
+---
+
+## 🧱 2. MVP (Minimum Viable Product) Structure
+
+### Core MVP Functionality:
+- Game loads and operates within the **Telegram Web App** interface.
+- Solana wallet (Phantom) connection capability.
+- Selection of one of the 5 base snails.
+- Betting mechanism before the race starts.
+- **Automatic snail race visualization** within the maze. Snails move based on their pre-defined logic without user intervention.
+- Winner determination based on the snail's unique behavior and maze layout.
+- Payout calculation: x2 winnings on victory, loss of stake otherwise.
+- "Play Again" functionality.
+- **Strictly single-player mode**: The player competes against the game's logic, not other real-time users.
+
+### Key MVP Blocks:
+- Frontend: HTML, CSS, JavaScript (Canvas API or DOM for visualization).
+- **Telegram Web App API** Integration (`telegram-web-app.js`).
+- Solana Integration: Phantom Wallet SDK, `@solana/web3.js`.
+- Snail Behavior Logic (separate JS modules).
+- Maze Generator/Loader.
+- Basic **English** UI (Selection Screen, Race Screen, Results Screen).
+
+### MVP Limitations:
+- **Single-player only** (no direct competition or synchronized races with other users).
+- No shared betting pool (mechanics are purely player vs. house: Bet -> Payout or Loss).
+- Payout transaction security needs careful consideration (backend or smart contract recommended for the full version; MVP might use a simplified approach or simulation).
+
+---
+
+## ⚙️ 3. Game Components
+
+### Snails (5 base types):
+Each with its own JS behavior module (`js/patches/`), icon (`images/`), and color. Snails move **autonomously**.
+
+- **racerSlug** (🔴 `red_snail.png`): Fast, sprint-focused. (`racerSlugPatch.js`)
+- **explorerSlug** (🟢 `green_snail.png`): Smart obstacle avoidance. (`explorerSlugPatch.js`)
+- **snakeSlug** (🔵 `blue_snail.png`): Winding, flexible pathing. (`snakeSlugPatch.js`)
+- **stubbornSlug** (🟣 `lilac_snail.png`): Unpredictable, stops and bursts. (`stubbornSlugPatch.js`)
+- **defaultSlug** (🟡 `yellow_snail.png`): Balanced (fallback).
+
+Logic loaded via `patchLoader.js`.
+
+### Maze:
+- Grid Size: 20x20 cells.
+- Generation: Random or selection from 10 predefined themes.
+- Cell Types: Path, Wall, Swamp (slow), Trap (stop), Boost (speed up), Portal.
+- Visual theme depends on the selected template.
+
+### Interface (English):
+- **Start Screen:** Title ("Snail to Riches"), "Select Your Snail" section (with snail icons/buttons), Bet input field, "Connect Wallet" button, "Start Race" button.
+- **Race Screen:** Visualization of the maze and **automatically moving snails**.
+- **Results Screen:** "Race Over!" message, "You Won!" / "You Lost!", Winnings/Loss amount display, "Play Again" button.
+
+---
+
+## 💸 4. Betting Mechanics (MVP)
+
+- Connect Solana wallet (Phantom).
+- Player specifies bet amount (in specific Solana tokens).
+- Before the race starts, the bet amount is deducted from the player's wallet (requires transaction confirmation).
+- If the player's chosen snail finishes first, winnings (2x the bet amount) are sent to the player's wallet.
+- Otherwise, the bet is lost.
+
+---
+
+## 🛠 5. Solana Integration (MVP)
+
+- Use Phantom Wallet SDK for connection and browser interaction.
+- Use `@solana/web3.js` for:
+    - Requesting wallet address.
+    - Checking token balance.
+    - Creating and sending the bet deduction transaction (signed by the player).
+    - Creating and sending the payout transaction (requires security consideration - signer identity).
+- **MVP Security Note:** Sending payouts directly from the frontend is insecure. Consider simulating this step, requiring manual payout, or planning for a simple backend/secure script for Phase 2.
+
+---
+
+## 📦 6. Extended Version (Phase 2 Plans)
+
+### Scheduled Tournaments:
+- Races start at scheduled intervals (e.g., every 5-10 minutes).
+- Players place bets into a common pool before the race.
+- Pool distribution (example): 30% commission, 70% prize pool.
+    - 1st place: 70% of the pool.
+    - 2nd place: 50% bet refund.
+    - 3rd place: 25% bet refund.
+- Requires a backend server or smart contract to manage the pool, run the definitive race logic securely, and distribute rewards.
+
+---
+
+## 📈 7. Future Development Possibilities
+
+- NFT Snails with unique stats and upgrade paths.
+- Player-customizable tracks.
+- Social features: Leaderboards, result sharing in Telegram, betting on other players' chosen snails (in tournament mode).
+- Multi-chain integration (e.g., TON via TON Connect).
+- In-game items and power-ups (could affect autonomous behavior).
+
+---
+
+## 📚 8. Technologies and Documentation
+
+### Web:
+- HTML5, CSS3, JavaScript (ES6+)
+- Canvas API (primary rendering choice) or DOM
+- **Telegram Web Apps API:** [https://core.telegram.org/bots/webapps](https://core.telegram.org/bots/webapps)
+- Hosting: Vercel ([https://vercel.com/docs](https://vercel.com/docs)) or similar.
+- Local Testing: ngrok ([https://ngrok.com/docs](https://ngrok.com/docs))
+
+### Blockchain:
+- Solana: `@solana/web3.js` ([https://solana-labs.github.io/solana-web3.js/](https://solana-labs.github.io/solana-web3.js/))
+- Wallet: Phantom Wallet SDK ([https://docs.phantom.app/](https://docs.phantom.app/))
+- (Future) TON: TON Connect ([https://docs.ton.org/develop/dapps/ton-connect](https://docs.ton.org/develop/dapps/ton-connect))
+
+### Tools:
+- Code Editor: Cursor
+- Version Control: Git, GitHub/GitLab
+
+---
+
+## 🚀 9. Step-by-Step Implementation Plan (for Cursor Interaction)
+
+**Phase 1: Setup and MVP Core**
+
+1.  **Project Initialization:**
+    *   **Action:** Create folder structure (`js/modules`, `js/patches`, `css`, `images`).
+    *   **Cursor:** "Create a basic file and folder structure for a Telegram Web App using HTML/CSS/JS. Include `index.html`, `style.css`, `main.js`, and folders `js/modules`, `js/patches`, `css`, `images`."
+    *   **Cursor:** "Add basic HTML markup to `index.html` for a Telegram Web App, including script tags for `telegram-web-app.js`, `style.css`, and `main.js`."
+
+2.  **Telegram Web App Setup & Testing:**
+    *   **Action:** Create Telegram Bot, configure Web App URL via BotFather, run `ngrok`.
+    *   **Cursor:** "Show an example of using `Telegram.WebApp.ready()` and `Telegram.WebApp.initDataUnsafe` in `main.js` for basic Telegram integration."
+    *   **Cursor:** "Provide `ngrok` command examples for tunneling port 8080 and explain how to use the resulting HTTPS URL in BotFather."
+
+3.  **Snail Behavior Modules (Autonomous Movement):**
+    *   **Action:** Create `*.js` files in `js/patches/`.
+    *   **Cursor:** "Create a JS class `SnailBehavior` with a method `calculateNextMove(currentSnailState, mazeData, deltaTime)`. It should determine the snail's next position/state based purely on its internal logic and the maze, returning `{ newX, newY, newState }`."
+    *   **Cursor (Inline Edit in `racerSlugPatch.js`):** "Implement the logic for `racerSlug`: high base speed, occasional strong bursts, simple wall avoidance. Ensure movement is autonomous." (Repeat for other snails, describing their *autonomous* behavior).
+    *   **Cursor:** "Create a `patchLoader.js` module to asynchronously load the correct snail behavior script based on the snail's name."
+
+4.  **Maze (Generation and Rendering):**
+    *   **Action:** Create `mazeGenerator.js`.
+    *   **Cursor:** "Write a JS function `generateMaze(width, height)` to create a 20x20 2D array representing the maze with walls and paths. Include cell types: 'path', 'wall', 'swamp', 'trap', 'boost', 'portal'." (Add template loading later).
+    *   **Action:** Set up Canvas in `index.html`.
+    *   **Cursor:** "Write a function `drawMaze(canvasContext, mazeData)` to render the maze grid and cell types onto the Canvas."
+    *   **Cursor:** "Write a function `drawSnails(canvasContext, snailsArray)` to render the snail images at their current positions on the Canvas."
+
+5.  **Game Loop and UI (MVP - English):**
+    *   **Action:** Create `gameLoop.js` or implement in `main.js`.
+    *   **Cursor:** "Create the main game loop using `requestAnimationFrame`. This loop should: 1. Update the state of each snail by calling its **autonomous** behavior module. 2. Check for win conditions (reaching the finish line). 3. Redraw the Canvas (maze and snails)."
+    *   **Cursor:** "Generate HTML and CSS for the **Start Screen** (English): Title, Snail selection buttons, Bet input, 'Connect Wallet', 'Start Race' buttons."
+    *   **Cursor:** "Generate HTML and CSS for the **Race Screen** (English): Primarily the Canvas element for visualization."
+    *   **Cursor:** "Generate HTML and CSS for the **Results Screen** (English): Win/Loss message, amount, 'Play Again' button."
+
+6.  **Solana Integration (MVP):**
+    *   **Action:** Install `@solana/web3.js` and Phantom SDK if needed.
+    *   **Cursor:** "Show JS example code for browser integration with Phantom Wallet: connect, get address, check token balance (e.g., USDC or a custom token)."
+    *   **Cursor:** "Write a JS function `initiateBetTransaction(betAmount, tokenMintAddress, gameWalletAddress)` using `@solana/web3.js` and the Phantom provider to create and request signing of a transaction sending tokens from the user to the game address."
+    *   **Cursor:** "Write a JS function placeholder `processWinnings(playerWalletAddress, winningsAmount, tokenMintAddress)` acknowledging the security challenge for MVP. Maybe just log the intended payout for now."
+
+**Phase 2: Testing, Debugging & MVP Deployment**
+
+7.  **Testing and Debugging:**
+    *   **Action:** Test all features via `ngrok` within the Telegram app. Focus on autonomous snail movement logic and wallet interactions.
+    *   **Cursor (Error Handling):** "I'm getting this error: [paste error]. It happens when [describe action, e.g., a snail hits a wall]. Here's the relevant code from `[snail_patch].js`: [paste code]. What's wrong and how can I fix it?"
+    *   **Cursor (Debugging):** "Add `console.log` statements inside the `calculateNextMove` method of `explorerSlugPatch.js` to track its position and decisions."
+
+8.  **MVP Deployment:**
+    *   **Action:** Prepare for deployment (e.g., on Vercel).
+    *   **Cursor:** "What are the steps to deploy this static HTML/CSS/JS Telegram Web App project to Vercel?"
+
+**Phase 3: Planning for Phase 2 and Beyond**
+
+9.  **Backend/Smart Contract for Tournaments:**
+    *   **Cursor:** "For Phase 2 tournaments with a shared betting pool, what backend stack (Node.js, Python?) or Solana smart contract approach would be suitable for securely managing bets, running server-authoritative races, and distributing winnings?"
+
+10. **Future Features (NFTs, TON, etc.):**
+    *   **Cursor:** "How could Solana NFTs represent snails? What metadata standard (e.g., Metaplex) should be used?"
+    *   **Cursor:** "Explain how TON Connect works and how to integrate it into this Web App alongside Phantom for multi-wallet support."
