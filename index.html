@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snail to Riches</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        // Логирование для отладки
+        console.log('HTML document loading...');
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded');
+        });
+        window.addEventListener('load', () => {
+            console.log('All resources loaded');
+        });
+        window.addEventListener('error', (e) => {
+            console.error('Resource error:', e.target.src || e.target.href);
+        });
+    </script>
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <h2>Snail to Riches</h2>
+            <div class="progress-container">
+                <div class="progress-bar" id="loading-progress"></div>
+            </div>
+            <div class="loading-text" id="loading-text">Загрузка ресурсов: 0% (0/0)</div>
+        </div>
+    </div>
+
+    <div id="main-game" class="hidden">
+        <header>
+            <h1>Snail to Riches</h1>
+        </header>
+        
+        <div class="game-container">
+            <div class="selection-screen" id="selection-screen">
+                <h2>Choose your snail</h2>
+                
+                <div class="snail-selection">
+                    <div class="snail-option" data-snail-type="racer">
+                        <img src="images/red_snail.png" alt="Racer Snail">
+                        <span>Racer</span>
+                    </div>
+                    <div class="snail-option" data-snail-type="explorer">
+                        <img src="images/blue_snail.png" alt="Explorer Snail">
+                        <span>Explorer</span>
+                    </div>
+                    <div class="snail-option" data-snail-type="snake">
+                        <img src="images/green_snail.png" alt="Snake Snail">
+                        <span>Snake</span>
+                    </div>
+                    <div class="snail-option" data-snail-type="stubborn">
+                        <img src="images/purple_snail.png" alt="Stubborn Snail">
+                        <span>Stubborn</span>
+                    </div>
+                    <div class="snail-option" data-snail-type="deadender">
+                        <img src="images/yellow_snail.png" alt="Deadender Snail">
+                        <span>Deadender</span>
+                    </div>
+                </div>
+                
+                <div class="bet-section">
+                    <label for="bet-amount">Bet:</label>
+                    <input type="number" id="bet-amount" min="1" max="100" value="10">
+                </div>
+                
+                <div class="balance-display">
+                    <span>Balance: <span id="balance-amount">100</span> coins</span>
+                </div>
+                
+                <button id="start-race" class="race-button">Start Race</button>
+            </div>
+            
+            <div class="game-screen hidden" id="game-screen">
+                <div id="maze-container"></div>
+                
+                <div class="race-info">
+                    <div class="current-bet">
+                        Bet: <span id="current-bet-display">0</span> coins
+                    </div>
+                    <div class="race-status">
+                        <span id="race-status-display">Ready</span>
+                    </div>
+                </div>
+                
+                <div class="race-controls">
+                    <button id="back-to-selection" class="control-button">Back</button>
+                </div>
+            </div>
+            
+            <div class="results-screen hidden" id="results-screen">
+                <h2>Race Results</h2>
+                
+                <div class="results-content">
+                    <div id="results-message"></div>
+                    <div id="race-positions"></div>
+                </div>
+                
+                <div class="results-balance">
+                    New balance: <span id="new-balance">0</span> coins
+                </div>
+                
+                <button id="play-again" class="race-button">Play Again</button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2025 Snail to Riches. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- Подключаем скрипты -->
+    <script src="js/assets.js"></script>
+    <script src="js/maze.js"></script>
+    <script src="js/snail.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        // Инициализация игры после загрузки всех ресурсов
+        document.addEventListener('DOMContentLoaded', () => {
+            // Инициализируем загрузчик игры
+            const game = new Game();
+            window.game = game;  // Для доступа из консоли
+        });
+    </script>
+</body>
+</html> 
